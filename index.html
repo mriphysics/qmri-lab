@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e2231a">
+  <meta name="description" content="Interactive quantitative MRI lab for T1 and T2 mapping and acquisition design.">
+  <title>Quantitative MRI Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="simulator.css">
+  <link rel="stylesheet" href="kings.css">
+</head>
+<body class="locked">
+  <section class="access-gate" id="accessGate" aria-labelledby="accessTitle">
+    <header class="access-gate-header">
+      <span class="brand-rule" aria-hidden="true"></span>
+      <span><small>King's College London</small><strong>Quantitative MRI Lab</strong></span>
+    </header>
+    <form class="access-card" id="accessForm">
+      <p class="eyebrow">6CCYB020 student access</p>
+      <h1 id="accessTitle">Enter the lab password</h1>
+      <p>This formative exercise is currently restricted to students who have been given the shared access password.</p>
+      <label for="accessPassword">Password</label>
+      <div class="access-input-row"><input id="accessPassword" name="password" type="password" autocomplete="current-password" required><button class="primary" type="submit">Enter lab</button></div>
+      <p class="access-error" id="accessError" role="alert" aria-live="polite"></p>
+      <small>The password is checked in this browser. Do not use a personal or institutional password here.</small>
+    </form>
+  </section>
+  <header class="site-header">
+    <a class="brand" href="#welcome" data-step-link="welcome" aria-label="Quantitative MRI Lab home">
+      <span class="brand-rule" aria-hidden="true"></span><span class="brand-copy"><span class="institution">King's College London, School of Biomedical Engineering and Imaging Sciences</span><strong>Quantitative MRI Lab</strong></span>
+    </a>
+    <div class="header-progress" aria-label="Lab progress"><span id="progressText">0 of 5 sections explored</span><span class="progress-track"><span id="progressBar"></span></span></div>
+  </header>
+  <div class="app-shell">
+    <nav class="step-nav" aria-label="Lab sections">
+      <button data-step="welcome" class="active"><span>01</span>Start</button><button data-step="t1"><span>02</span>T1 recovery</button><button data-step="t2"><span>03</span>T2 decay</button><button data-step="maps"><span>04</span>Maps</button><button data-step="challenge"><span>05</span>Challenge</button>
+    </nav>
+    <main id="main">
+      <section class="step active" id="welcome" data-step-panel="welcome">
+        <div class="hero-grid">
+          <div class="hero-copy"><p class="eyebrow">Formative quantitative MRI practical</p><h1>Measure what an MR image cannot tell you alone</h1><p class="lede">Explore real phantom data, estimate relaxation times, and decide which measurements make a quantitative map trustworthy.</p><button class="primary" data-next="t1">Begin with T1 recovery</button></div>
+          <figure class="phantom-card"><img src="assets/phantom.png" alt="Five sample tubes used to acquire the MRI datasets"><figcaption>The five samples appear in a different order in the MR images. You will identify them by their signal behaviour.</figcaption></figure>
+        </div>
+        <div class="learning-grid"><article><span>01</span><h2>Read the signal</h2><p>Connect inversion time and echo time to the observed image contrast.</p></article><article><span>02</span><h2>Interrogate the model</h2><p>Explain the role of TR, the scale factor S<sub>0</sub>, magnitude data, and residuals.</p></article><article><span>03</span><h2>Judge the map</h2><p>Use fit quality and spatial variation to distinguish a number from a reliable measurement.</p></article><article><span>04</span><h2>Design an acquisition</h2><p>Trade the number and placement of measurements against precision.</p></article></div>
+        <p class="privacy-note">Your progress and answers stay in this browser. No student data are uploaded.</p>
+      </section>
+      <section class="step" id="t1" data-step-panel="t1">
+        <div class="section-heading"><div><p class="eyebrow">Part 1</p><h1>T1 recovery after inversion</h1></div><p>Move through the inversion times, then select a voxel inside one of the samples. The curve is assembled from the same location in all 26 images.</p></div>
+        <div class="lab-grid">
+          <article class="viewer-panel"><div class="panel-title"><div><span class="kicker">Image series</span><h2>Inversion recovery</h2></div><output id="t1Time">TI 100 ms</output></div><canvas id="t1Image" width="512" height="512" aria-label="Inversion recovery MRI image. Click a sample to select a voxel."></canvas><label class="range-label" for="t1Slider"><span>Inversion time</span><input id="t1Slider" type="range" min="0" max="25" value="0"><span>100 ms — 4000 ms</span></label><p class="microcopy">Click inside a sample. Avoid its edge, where a voxel may contain more than one material.</p></article>
+          <article class="fit-panel"><div class="panel-title"><div><span class="kicker">Selected voxel</span><h2>Signal and model fit</h2></div><span id="t1Coord" class="coord">x 32 · y 36</span></div><canvas id="t1Chart" width="760" height="420" aria-label="T1 signal measurements and fitted inversion recovery curve"></canvas><div class="metric-row"><div><small>Estimated T1</small><strong id="t1Value">—</strong></div><div><small>Scale S<sub>0</sub></small><strong id="t1S0">—</strong></div><div><small>Fit RMSE</small><strong id="t1Rmse">—</strong></div></div><details><summary>Show the model and fitting approach</summary><div class="math-block">S(TI) = |S<sub>0</sub>(1 − 2e<sup>−TI/T1</sup>)|</div><p>For each possible T1, the browser finds the best S<sub>0</sub>, then keeps the pair with the smallest squared residual. This serves the same purpose as the supplied MATLAB fit without requiring students to write optimisation code.</p></details></article>
+        </div>
+        <div class="question-grid"><article class="question" data-question="t1tr"><p class="question-number">Check your reasoning</p><h2>Why is the TR term absent from this fit?</h2><button data-choice="wrong">TR affects only T2.</button><button data-choice="right">TR was long enough for near-complete recovery.</button><button data-choice="wrong">Magnitude reconstruction removes TR dependence.</button><p class="feedback" aria-live="polite"></p></article><article class="question" data-question="t1mag"><p class="question-number">Look near the null point</p><h2>Why fit the absolute value?</h2><button data-choice="wrong">Relaxation times cannot be negative.</button><button data-choice="wrong">It makes nonlinear fitting faster.</button><button data-choice="right">The reconstructed magnitude image does not preserve signal sign.</button><p class="feedback" aria-live="polite"></p></article></div>
+        <div class="section-actions"><button class="secondary" data-next="welcome">Back</button><button class="primary" data-next="t2">Continue to T2 decay</button></div>
+      </section>
+      <section class="step" id="t2" data-step-panel="t2">
+        <div class="section-heading"><div><p class="eyebrow">Part 2</p><h1>T2 decay after excitation</h1></div><p>The same phantom was imaged at 30 echo times. Inspect the decay and use the residuals to decide whether a single exponential describes every measurement.</p></div>
+        <div class="lab-grid">
+          <article class="viewer-panel"><div class="panel-title"><div><span class="kicker">Image series</span><h2>Spin echo</h2></div><output id="t2Time">TE 15 ms</output></div><canvas id="t2Image" width="512" height="512" aria-label="Spin echo MRI image. Click a sample to select a voxel."></canvas><label class="range-label" for="t2Slider"><span>Echo time</span><input id="t2Slider" type="range" min="0" max="29" value="0"><span>15 ms — 450 ms</span></label><p class="microcopy">At long TE, which samples remain visible? That persistence is evidence about T2, not simply brightness.</p></article>
+          <article class="fit-panel"><div class="panel-title"><div><span class="kicker">Selected voxel</span><h2>Decay and residuals</h2></div><span id="t2Coord" class="coord">x 32 · y 36</span></div><canvas id="t2Chart" width="760" height="420" aria-label="T2 signal measurements, fitted exponential, and residuals"></canvas><div class="metric-row"><div><small>Estimated T2</small><strong id="t2Value">—</strong></div><div><small>Scale S<sub>0</sub></small><strong id="t2S0">—</strong></div><div><small>Fit RMSE</small><strong id="t2Rmse">—</strong></div></div><details><summary>Show the model and fitting approach</summary><div class="math-block">S(TE) = S<sub>0</sub>e<sup>−TE/T2</sup></div><p>The TR-dependent contribution is constant across this series and is absorbed into the fitted scale S<sub>0</sub>. The residual plot helps reveal structure that a single exponential misses.</p></details></article>
+        </div>
+        <article class="question wide" data-question="t2res"><p class="question-number">Evidence in the residuals</p><h2>Which pattern appears repeatedly in this dataset?</h2><div class="choice-row"><button data-choice="wrong">Only the final echo deviates</button><button data-choice="right">Successive echoes alternate around the fit</button><button data-choice="wrong">Every echo has the same offset</button></div><p class="feedback" aria-live="polite"></p></article>
+        <div class="section-actions"><button class="secondary" data-next="t1">Back</button><button class="primary" data-next="maps">Build quantitative maps</button></div>
+      </section>
+      <section class="step" id="maps" data-step-panel="maps">
+        <div class="section-heading"><div><p class="eyebrow">Part 3</p><h1>From weighted images to quantitative maps</h1></div><p>A map is not calculated from the image as a whole. The signal curve is fitted independently at every included voxel, and each fitted value becomes one coloured map pixel.</p></div>
+        <div class="map-toolbar"><div class="segmented" role="group" aria-label="Map parameter"><button class="active" data-map-mode="t1">T1 map</button><button data-map-mode="t2">T2 map</button></div><label for="maskThreshold">Mask threshold <input id="maskThreshold" type="range" min="5" max="55" value="20"><output id="maskOutput">20%</output></label><button class="primary" id="calculateMap">Calculate map</button></div>
+        <div class="map-process" aria-label="Voxel-wise map calculation">
+          <article><span class="process-number">01</span><div><span class="kicker">Measurements</span><h2>Weighted image series</h2></div><div class="image-stack" aria-hidden="true"><i></i><i></i><i></i></div><p>Take the signal from the same voxel in every image.</p></article>
+          <span class="process-arrow" aria-hidden="true">→</span>
+          <article><span class="process-number">02</span><div><span class="kicker">Voxel fit</span><h2 id="mapFitTitle">Waiting to calculate</h2></div><canvas id="mapFitCanvas" width="420" height="190" aria-label="Signal measurements and fitted curve for the voxel currently being calculated"></canvas><p id="mapFitLabel">Press Calculate map to begin fitting voxels.</p></article>
+          <span class="process-arrow" aria-hidden="true">→</span>
+          <article class="value-process"><span class="process-number">03</span><div><span class="kicker">Store the estimate</span><h2>One fitted value becomes one map pixel</h2></div><strong id="mapVoxelValue">— ms</strong><p>Colour encodes the fitted relaxation time, not image brightness.</p></article>
+        </div>
+        <div class="map-progress" aria-live="polite"><span id="mapProgressText">Map not yet calculated</span><span class="map-progress-track"><span id="mapProgressBar"></span></span></div>
+        <div class="map-grid"><article class="map-card"><canvas id="mapCanvas" width="640" height="640" aria-label="Quantitative relaxation map appearing as voxels are fitted"></canvas><div class="colour-key"><span>short</span><i></i><span>long</span></div></article><article class="interpret-card"><span class="kicker">Interpretation</span><h2 id="mapTitle">T1 map awaiting calculation</h2><p id="mapDescription">Choose the parameter and mask, then calculate the voxel-wise map.</p><table><thead><tr><th>Sample</th><th id="meanHead">Mean T1</th><th>Spatial SD</th><th>CV</th></tr></thead><tbody id="mapTable"></tbody></table><p class="microcopy">The sample numbers run from left to right in the MR image. Spatial variation includes image noise and model mismatch; it is not a confidence interval on the mean.</p><article class="callout"><strong>Ask before accepting a map</strong><p>Does the curve fit? Is the mask sensible? Are the measurements placed where they constrain the parameter?</p></article></article></div>
+        <div class="section-actions"><button class="secondary" data-next="t2">Back</button><button class="primary" data-next="challenge">Continue to the challenge</button></div>
+      </section>
+      <section class="step" id="challenge" data-step-panel="challenge">
+        <div class="section-heading"><div><p class="eyebrow">Final challenge</p><h1>Design an efficient measurement</h1></div><p>Build the acquisition one image at a time. Choose the sequence and parameters, inspect the noisy weighted images, then decide whether the resulting fit is precise enough.</p></div>
+        <div class="challenge-grid">
+          <article class="control-card">
+            <div class="field"><label>Parameter to measure</label><div class="segmented"><button class="active" data-challenge-mode="t1">T1</button><button data-challenge-mode="t2">T2</button></div></div>
+            <div class="plan-heading"><div><span class="kicker">Scanner protocol</span><h2>One row produces one weighted image</h2></div></div>
+            <div class="plan-scroll"><table class="protocol-table"><thead><tr><th>#</th><th>Sequence</th><th>TI (ms)</th><th>TR (ms)</th><th>TE (ms)</th><th></th></tr></thead><tbody id="planRows"></tbody></table></div>
+            <button class="add-row" id="addMeasurement">+ Add measurement</button>
+            <button class="primary full" id="runChallenge">Acquire images and fit</button>
+            <p class="microcopy">Spin echo uses TE and TR. Inversion recovery also uses TI. Change one decision at a time and predict how the image contrast will respond.</p>
+          </article>
+          <article class="result-card">
+            <div class="result-header"><div><span class="kicker">Latest acquisition</span><h2 id="challengeVerdict">Ready to scan</h2></div><strong id="challengeScore">—</strong></div>
+            <div class="sim-view-grid"><div><canvas id="simulatedImage" class="selectable-image" width="512" height="512" aria-label="Selected simulated noisy weighted MRI image. Click a voxel to inspect its fitted signal."></canvas><p id="simImageLabel" class="image-label">Weighted images will appear here. After acquisition, click a sample voxel to inspect its fit.</p></div><div class="result-plot"><div class="plot-toolbar"><div class="segmented" role="group" aria-label="Result plot"><button class="active" data-result-view="distribution">Distributions</button><button data-result-view="fit">Selected voxel fit</button></div><p id="plotHelp">Violin width shows the density of voxel estimates. Red lines mark the hidden true means; white dots mark measured means.</p></div><canvas id="challengeChart" width="760" height="430" aria-label="Distribution of fitted parameters for each sample"></canvas></div></div>
+            <div id="acquisitionStrip" class="acquisition-strip" aria-label="Acquired images"></div>
+            <div id="challengeFeedback" class="challenge-feedback">Create a protocol, then acquire the image series.</div><div class="attempts"><span>Best protocol this session</span><strong id="bestScore">No successful plan yet</strong></div>
+          </article>
+        </div>
+        <details class="implementation-note"><summary>Code view: simulation and mixed-sequence fitting</summary><div class="code-explanation"><h3>Signal simulation</h3><p>Every voxel has hidden values for proton density ρ, T1 and T2. A spin-echo row generates</p><div class="math-block">S = |ρ(1 − e<sup>−TR/T1</sup>)e<sup>−TE/T2</sup> + noise|</div><p>An inversion-recovery row generates</p><div class="math-block">S = |ρ(1 − 2e<sup>−TI/T1</sup> + e<sup>−TR/T1</sup>)e<sup>−TE/T2</sup> + noise|</div><h3>One joint fit for any mixture</h3><p>The fitter does not split spin-echo and inversion-recovery images into separate analyses. For each voxel it tests a grid of candidate T1 and T2 pairs. For every pair it evaluates the appropriate equation for each protocol row, solves analytically for the single shared scale ρ, and calculates the sum of squared residuals across all acquired images. The T1, T2 and ρ combination with the smallest residual is retained.</p><p>With only one sequence type, two images can be sufficient: their timing must create different sensitivity to the requested parameter while keeping unwanted weighting controlled. For example, T2 needs different TE values with the same recovery settings. A protocol mixing spin echo and inversion recovery has three unknowns in the joint model, so at least three independent measurements are required. Those measurements must vary both recovery weighting and echo-time weighting to separate T1, T2 and ρ.</p><h3>Reading the plots</h3><p>Each violin contains the fitted voxel values from one sample. Its width shows where estimates are concentrated, the white dot marks their mean, and the red line marks the hidden true mean. Clicking a weighted image selects a voxel and displays that voxel’s measured signals and the predictions from the joint fit in acquisition order.</p></div></details>
+        <div class="section-actions"><button class="secondary" data-next="maps">Back to maps</button><button class="primary" data-next="welcome">Return to the start</button></div>
+      </section>
+    </main>
+  </div>
+  <div id="status" class="status" role="status" aria-live="polite">Loading MRI datasets…</div>
+  <script src="gate.js"></script>
+</body>
+</html>
