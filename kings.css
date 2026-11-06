@@ -102,3 +102,39 @@ body.locked>.site-header,body.locked>.app-shell,body.locked>.status { visibility
   .access-input-row { grid-template-columns:1fr; gap:9px; }
   .access-input-row input { border-right:1px solid #aebdc4; }
 }
+
+/* Use top navigation tabs so every exercise, especially the protocol builder, gets the full page width. */
+.app-shell { display:block; max-width:1440px; margin:0 auto; }
+.step-nav {
+  position:sticky; top:72px; z-index:15; height:auto;
+  display:flex; flex-direction:row; gap:0; overflow-x:auto;
+  padding:0 clamp(20px,5vw,76px); background:#edf1f3;
+  border-right:0; border-bottom:1px solid var(--line);
+}
+.step-nav button {
+  flex:1 0 auto; min-width:145px; padding:13px 16px;
+  text-align:center; white-space:nowrap; border-left:0; border-bottom:4px solid transparent;
+}
+.step-nav button:hover { border-left:0; border-bottom-color:#aebdc4; }
+.step-nav button.active { border-left:0; border-bottom:4px solid var(--teal); }
+main { padding-top:42px; }
+
+#challenge .challenge-grid { grid-template-columns:1fr; }
+#challenge .control-card { width:100%; }
+#challenge .protocol-table { min-width:720px; table-layout:fixed; }
+#challenge .protocol-table th:nth-child(1) { width:5%; }
+#challenge .protocol-table th:nth-child(2) { width:25%; }
+#challenge .protocol-table th:nth-child(3),
+#challenge .protocol-table th:nth-child(4),
+#challenge .protocol-table th:nth-child(5) { width:20%; }
+#challenge .protocol-table th:nth-child(6) { width:10%; }
+#challenge .protocol-table select,
+#challenge .protocol-table input { width:100%; }
+#challenge .protocol-table select { min-width:150px; }
+
+@media(max-width:760px) {
+  .step-nav { padding:0 12px; }
+  .step-nav button { flex:0 0 auto; min-width:auto; padding:11px 13px; }
+  main { padding-top:30px; }
+  #challenge .protocol-table { min-width:650px; }
+}
