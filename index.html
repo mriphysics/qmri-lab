@@ -85,7 +85,7 @@
             <div class="field"><label>Parameter to measure</label><div class="segmented"><button class="active" data-challenge-mode="t1">T1</button><button data-challenge-mode="t2">T2</button></div></div>
             <div class="plan-heading"><div><span class="kicker">Scanner protocol</span><h2>One row produces one weighted image</h2></div></div>
             <div class="plan-scroll"><table class="protocol-table"><thead><tr><th>#</th><th>Sequence</th><th>TI (ms)</th><th>TR (ms)</th><th>TE (ms)</th><th></th></tr></thead><tbody id="planRows"></tbody></table></div>
-            <p class="protocol-ranges"><strong>Allowed ranges:</strong> 5 &lt; TE &lt; 500 ms · TE &lt; TR &lt; 10,000 ms · 0 &lt; TI &lt; TR − TE</p>
+            <p class="protocol-ranges"><strong>Allowed ranges:</strong> 5 ≤ TE ≤ 500 ms · TE ≤ TR ≤ 10,000 ms · 0 ≤ TI ≤ TR − TE</p>
             <button class="add-row" id="addMeasurement">+ Add measurement</button>
             <div class="scan-time-estimate"><span>Current estimated scan time</span><strong id="currentScanTime">Add measurements</strong><small>Each row is treated as a separate 64-line image: time ≈ 64 × TR.</small></div>
             <div id="protocolValidity" class="protocol-validity" role="status">Add measurements to check the protocol timing.</div>
