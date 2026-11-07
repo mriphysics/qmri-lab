@@ -1,4 +1,5 @@
 (()=>{
+  const assetVersion='20261107-2';
   const expected='da08a9a8815bbdb6464c1ccd7b5ed58b01372bb8dc14a2eca64cf8eded71a8d5';
   const storageKey='qmri-lab-access-v1';
   const gate=document.querySelector('#accessGate');
@@ -19,8 +20,8 @@
     document.body.classList.remove('locked');
     gate.hidden=true;
     if(document.querySelector('script[data-qmri-app]'))return;
-    if(window.QMRIChallenge)appendScript('app.js','qmriApp');
-    else appendScript('challenge-core.js','qmriCore',()=>appendScript('app.js','qmriApp'));
+    if(window.QMRIChallenge)appendScript(`app.js?v=${assetVersion}`,'qmriApp');
+    else appendScript(`challenge-core.js?v=${assetVersion}`,'qmriCore',()=>appendScript(`app.js?v=${assetVersion}`,'qmriApp'));
   }
   async function hash(value){
     const bytes=new TextEncoder().encode(value);
