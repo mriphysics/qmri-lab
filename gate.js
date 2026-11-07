@@ -8,14 +8,19 @@
 
   function remembered(){try{return sessionStorage.getItem(storageKey)===expected}catch{return false}}
   function remember(){try{sessionStorage.setItem(storageKey,expected)}catch{}}
+  function appendScript(src,marker,onload){
+    const script=document.createElement('script');
+    script.src=src;
+    script.dataset[marker]='true';
+    if(onload)script.addEventListener('load',onload,{once:true});
+    document.body.append(script);
+  }
   function loadLab(){
     document.body.classList.remove('locked');
     gate.hidden=true;
     if(document.querySelector('script[data-qmri-app]'))return;
-    const script=document.createElement('script');
-    script.src='app.js';
-    script.dataset.qmriApp='true';
-    document.body.append(script);
+    if(window.QMRIChallenge)appendScript('app.js','qmriApp');
+    else appendScript('challenge-core.js','qmriCore',()=>appendScript('app.js','qmriApp'));
   }
   async function hash(value){
     const bytes=new TextEncoder().encode(value);

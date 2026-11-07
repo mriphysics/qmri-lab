@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e2231a">
+  <meta name="robots" content="noindex,nofollow">
+  <title>qMRI Challenge Submission Verifier</title>
+  <style>
+    :root{--red:#e2231a;--navy:#102b46;--teal:#087e7a;--muted:#5f6c7b;--line:#d5dde1;--paper:#f4f6f5;--good:#087e7a;--bad:#b52d25}*{box-sizing:border-box}body{margin:0;color:#17283d;background:var(--paper);font-family:Arial,Helvetica,sans-serif}.header{padding:20px max(24px,calc((100vw - 1040px)/2));color:white;background:var(--navy);border-top:8px solid var(--red)}.header small,.header strong{display:block}.header small{margin-bottom:4px;font-size:12px}.header strong{font-size:24px}main{max-width:1040px;margin:32px auto;padding:0 24px 60px}.intro{display:grid;grid-template-columns:1fr .8fr;gap:28px;margin-bottom:24px}.intro h1{margin:0 0 10px;font-size:32px}.intro p{margin:0;color:var(--muted);line-height:1.55}.note{padding:16px 18px;border-left:5px solid var(--teal);background:white;font-size:13px;line-height:1.5}.card{padding:22px;border:1px solid var(--line);background:white;box-shadow:0 5px 20px rgba(16,43,70,.06)}label{display:block;margin-bottom:8px;color:var(--navy);font-size:13px;font-weight:800}textarea{display:block;width:100%;min-height:150px;padding:12px;border:1px solid #aebbc3;border-radius:6px;font:11px/1.5 ui-monospace,"SFMono-Regular",Consolas,monospace;resize:vertical}button{margin-top:14px;padding:11px 18px;border:0;border-radius:4px;color:white;background:var(--red);font-weight:800;cursor:pointer}button:disabled{cursor:wait;opacity:.65}.status{min-height:20px;margin:12px 0 0;color:var(--muted);font-size:13px}.result{margin-top:22px}.verdict{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 20px;color:white;background:var(--good)}.verdict.bad{background:var(--bad)}.verdict h2{margin:0;font-size:20px}.verdict strong{font:800 21px ui-monospace,"SFMono-Regular",Consolas,monospace}.metrics{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-top:0}.metric{padding:15px;border-right:1px solid var(--line)}.metric:last-child{border-right:0}.metric small,.metric strong{display:block}.metric small{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.metric strong{margin:5px 0;color:var(--navy);font-size:18px}.metric span{font-size:11px}.protocols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.protocol{padding:16px;border:1px solid var(--line);background:white}.protocol h3{margin:0 0 12px;color:var(--navy)}table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:7px 5px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}.error{padding:16px 18px;border-left:5px solid var(--bad);color:#802019;background:#fff0ee;font-weight:700}.foot{margin-top:18px;color:var(--muted);font-size:11px;line-height:1.5}@media(max-width:720px){.intro,.protocols{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.verdict{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <header class="header"><small>King's College London · 6CCYB020</small><strong>qMRI Challenge Submission Verifier</strong></header>
+  <main>
+    <section class="intro"><div><h1>Verify a submitted result</h1><p>Paste the complete submission code below. The verifier reconstructs both acquisition protocols, regenerates the fixed synthetic noise, repeats every voxel fit, and independently checks the precision and total scan time.</p></div><aside class="note"><strong>No claimed result is trusted.</strong><br>The checksum first detects an incomplete or edited code. The protocols are then recalculated using the matching challenge engine.</aside></section>
+    <form class="card" id="verifyForm"><label for="code">Submission code</label><textarea id="code" required spellcheck="false" autocomplete="off" placeholder="QMR1…"></textarea><button id="verifyButton" type="submit">Verify submission</button><p class="status" id="status" role="status" aria-live="polite"></p></form>
+    <section class="result" id="result" hidden></section>
+    <p class="foot">This verifier contains no student identity information. Version <span id="engineVersion">—</span> · qualification requires every sample CV to be below 10%.</p>
+  </main>
+  <script src="../challenge-core.js"></script>
+  <script>
+    const form=document.querySelector('#verifyForm'),button=document.querySelector('#verifyButton'),status=document.querySelector('#status'),result=document.querySelector('#result');
+    document.querySelector('#engineVersion').textContent=QMRIChallenge.VERSION;
+    const formatDuration=seconds=>{const rounded=Math.round(seconds);if(rounded<60)return`${rounded} s`;const minutes=Math.floor(rounded/60),secs=rounded%60;return secs?`${minutes} min ${String(secs).padStart(2,'0')} s`:`${minutes} min`};
+    const protocolTable=plan=>`<table><thead><tr><th>Sequence</th><th>TI</th><th>TR</th><th>TE</th></tr></thead><tbody>${plan.map(m=>`<tr><td>${m.sequence==='ir'?'IR':'Spin echo'}</td><td>${m.sequence==='ir'?m.ti:'—'}</td><td>${m.tr}</td><td>${m.te}</td></tr>`).join('')}</tbody></table>`;
+    form.addEventListener('submit',async event=>{
+      event.preventDefault();result.hidden=true;button.disabled=true;button.textContent='Recalculating…';status.textContent='Checking the code and repeating both voxel-wise simulations and fits…';
+      await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+      try{
+        const verification=await QMRIChallenge.verifySubmissionCode(document.querySelector('#code').value),a1=verification.analyses.t1,a2=verification.analyses.t2;
+        const verdict=verification.valid?'Verified qualifying result':'Result rejected';
+        result.innerHTML=`<div class="verdict ${verification.valid?'':'bad'}"><h2>${verdict}</h2><strong>${formatDuration(verification.totalSeconds)} total</strong></div><div class="metrics"><div class="metric"><small>T1 measurement</small><strong>${formatDuration(a1.seconds)}</strong><span>${a1.worst.toFixed(1)}% worst CV · ${a1.qualifies?'qualifies':'does not qualify'}</span></div><div class="metric"><small>T2 measurement</small><strong>${formatDuration(a2.seconds)}</strong><span>${a2.worst.toFixed(1)}% worst CV · ${a2.qualifies?'qualifies':'does not qualify'}</span></div><div class="metric"><small>Integrity checks</small><strong>${verification.checksumValid&&verification.resultMatches?'Passed':'Failed'}</strong><span>Code ${verification.payload.v} · claimed and recalculated results ${verification.resultMatches?'match':'do not match'}</span></div></div><div class="protocols"><section class="protocol"><h3>T1 protocol</h3>${protocolTable(verification.plans.t1)}</section><section class="protocol"><h3>T2 protocol</h3>${protocolTable(verification.plans.t2)}</section></div>`;
+        result.hidden=false;status.textContent=verification.valid?'Verification complete. The time, protocols and qualification all agree.':'Verification complete, but the submission did not pass every check.';
+      }catch(error){result.innerHTML=`<div class="error">${error.message}</div>`;result.hidden=false;status.textContent='The submission could not be verified.';}
+      finally{button.disabled=false;button.textContent='Verify submission';}
+    });
+  </script>
+</body>
+</html>
